@@ -9,6 +9,8 @@ let timerRaf = 0;
 
 function setTimer(id, label, left, total) {
   const el = $(id);
+  el.classList.toggle('low', state.phase === 'answer' && left != null && left < 5000);
+  el.classList.toggle('after', state.phase !== 'answer');
   el.querySelector('.timer-label').textContent = label;
   el.querySelector('.timer-val').textContent = left == null ? '' : (left / 1000).toFixed(1).replace('.', ',') + ' с';
   el.querySelector('.timer-bar i').style.width = (left == null ? 100 : left / total * 100) + '%';
@@ -35,11 +37,36 @@ function show(id) {
   document.querySelectorAll('.screen').forEach(s => (s.hidden = s.id !== id));
 }
 
-function setProgress() {
-  const pl = state && state.plan[state.idx];
-  $('progress').textContent = pl
-    ? `Тест ${pl.test} · вопрос ${pl.q} · раунд ${state.idx + 1} / ${state.plan.length}`
-    : '';
+const blockKey = pl => `${pl.test}-${pl.q}`;
+
+function buildTrack() {
+  const blocks = [];
+  state.plan.forEach(pl => {
+    const last = blocks[blocks.length - 1];
+    if (last && last.key === blockKey(pl)) last.n++;
+    else blocks.push({ key: blockKey(pl), test: pl.test, n: 1 });
+  });
+  state.blocks = blocks;
+  $('track').innerHTML = blocks.map((b, i) =>
+    `<span class="seg${i && b.test !== blocks[i - 1].test ? ' gap' : ''}" title="Тест ${b.test}"><i></i></span>`).join('');
+  $('track').hidden = false;
+}
+
+function setProgress(done = state.trials.filter(t => t.rt != null).length) {
+  const pl = state.plan[Math.min(state.idx, state.plan.length - 1)];
+  $('progress').textContent = `Тест ${pl.test} · вопрос ${pl.q} из ${TESTS[pl.test].length}`;
+  let seen = 0;
+  const segs = $('track').querySelectorAll('.seg i');
+  state.blocks.forEach((b, i) => {
+    segs[i].style.width = Math.max(0, Math.min(b.n, done - seen)) / b.n * 100 + '%';
+    seen += b.n;
+  });
+}
+
+function stageEstimate() {
+  const w = Math.min(innerWidth, 980) - (innerWidth <= 760 ? 32 : 40);
+  const h = Math.max(320, innerHeight - 56 - 40);
+  return stageSizes(w, h);
 }
 
 function blockIntro() {
@@ -47,12 +74,15 @@ function blockIntro() {
   const c = CONDS[pl.cond];
   state.phase = 'block';
   setProgress();
+  const sz = stageEstimate();
+  const px = Math.round(c.size === 'large' ? sz.large : sz.small);
   $('block-kicker').textContent = `Тест ${pl.test} · вопрос ${pl.q} из ${TESTS[pl.test].length}`;
   $('block-title').textContent = c.title;
-  $('block-text').textContent = `Сейчас будет ${SETS} ${word(SETS, 'набор', 'набора', 'наборов')}: ${c.title.toLowerCase()}. Время показа — ${fmtSec(SHOW_MS)} с.`;
-  $('block-pic').innerHTML = renderDigit(5, c.notation);
-  $('block-pic').className = 'legend-pic ' + (c.size === 'large' ? 'pic-large' : 'pic-small');
-  $('block-pic-label').textContent = c.size === 'large' ? 'крупный размер' : 'обычный размер';
+  $('block-preview').innerHTML = shuffle(DIGITS).slice(0, 3)
+    .map(d => `<span style="width:${px}px;height:${px}px">${renderDigit(d, c.notation)}</span>`).join('');
+  $('block-preview').querySelectorAll('svg').forEach(svg => { svg.style.width = svg.style.height = px + 'px'; });
+  $('block-cap').textContent = `Примерно такого размера объекты будут на экране (${px} px)`;
+  $('block-text').textContent = `${SETS} ${word(SETS, 'набор', 'набора', 'наборов')} по ${MIN_N}–${MAX_N} ${word(MAX_N, 'объекту', 'объекта', 'объектов')}, каждый виден ${fmtSec(SHOW_MS)} с.`;
   show('screen-block');
   $('btn-block').focus();
 }
@@ -98,6 +128,11 @@ function askAnswer(trial) {
     b.addEventListener('click', () => toggle(d));
     box.appendChild(b);
   }
+  const pl = state.plan[state.idx];
+  $('answer-chip').textContent = `${CONDS[trial.cond].short} · ${pl.set} / ${SETS}`;
+  $('answer-title').textContent = notation === 'arabic' ? 'Какие цифры были?' : 'Какие пиктограммы были?';
+  updatePicked();
+  $('answer-hint').hidden = false;
   $('feedback').hidden = true;
   $('btn-submit').hidden = false;
   $('btn-next').hidden = true;
@@ -112,6 +147,12 @@ function toggle(d) {
   const b = document.querySelector(`.opt[data-d="${d}"]`);
   if (b.classList.toggle('selected')) state.order.push(d);
   else state.order = state.order.filter(x => x !== d);
+  updatePicked();
+}
+
+function updatePicked() {
+  const k = state.order ? state.order.length : 0;
+  $('picked').textContent = k ? `Отмечено: ${k}` : 'Ничего не отмечено';
 }
 
 function submit(timedOut = false) {
@@ -144,6 +185,9 @@ function submit(timedOut = false) {
       (fa ? ` · <span class="c-fa">лишних: ${fa}</span>` : ''));
   fb.hidden = false;
   $('btn-submit').hidden = true;
+  $('answer-hint').hidden = true;
+  $('picked').textContent = '';
+  setProgress();
   $('btn-next').hidden = false;
   $('btn-next').focus();
   const last = state.idx + 1 >= state.plan.length;
@@ -165,17 +209,40 @@ function finish() {
   state.phase = 'done';
   const p = {
     group: GROUP,
+    name: cleanName($('name').value),
     time: Date.now(),
     showMs: SHOW_MS,
     dev: { touch: matchMedia('(pointer: coarse)').matches, w: innerWidth, h: innerHeight },
     trials: state.trials.map(t => ({ test: t.test, q: t.q, cond: t.cond, items: t.items, sel: t.sel, rt: t.rt, to: t.to, px: t.px })),
   };
-  location.href = 'view.html#' + encodeHash(p);
+  const code = encodeHash(p);
+  try { sessionStorage.setItem(PENDING_KEY, code); } catch {}
+  location.href = 'view.html#' + code;
 }
 
 function start() {
   state = { plan: buildPlan(), idx: 0, trials: [], phase: 'block' };
+  try { localStorage.setItem(NAME_KEY, $('name').value); } catch {}
+  document.body.classList.add('running');
+  buildTrack();
   blockIntro();
+}
+
+const NAME_KEY = 'hci-size-lab1-name';
+
+function renderPlan() {
+  const px = { large: 48, small: 16 };
+  const card = t => `<div class="plan-card">
+    <h3>Тест ${t}</h3>
+    <p>${t === 1 ? 'Крупные и обычные арабские цифры' : 'Размер × вид: цифры и пиктограммы'} · ${TESTS[t].length * SETS} раундов</p>
+    <div class="plan-qs">${TESTS[t].map((k, i) => {
+      const c = CONDS[k];
+      const s = px[c.size];
+      return `<div class="plan-q"><div class="pic">${renderDigit(7, c.notation).replace('<svg ', `<svg width="${s}" height="${s}" `)}</div><b>Вопрос ${i + 1}</b>${c.title}</div>`;
+    }).join('')}</div>
+  </div>`;
+  $('plan').innerHTML = TEST_IDS.map(card).join('');
+  if (TEST_IDS.length === 1) $('plan').style.gridTemplateColumns = '1fr';
 }
 
 function init() {
@@ -184,11 +251,12 @@ function init() {
   $('a-label').textContent = fmtSec(ANSWER_MS);
   $('min-label').textContent = MIN_N;
   $('max-label').textContent = MAX_N;
-  $('blocks-label').textContent = blocks;
-  $('sets-label').textContent = SETS;
-  $('rounds-label').textContent = blocks * SETS;
-  $('legend-arabic').innerHTML = renderDigit(5, 'arabic');
-  $('legend-picto').innerHTML = renderDigit(5, 'picto');
+  $('dur-label').textContent = Math.max(1, Math.round(blocks * SETS * (FIXATION_MS + SHOW_MS + 9000) / 60000));
+  $('step-pic').innerHTML = [[5, 'arabic', 48], [3, 'picto', 16], [8, 'arabic', 16], [6, 'picto', 48]]
+    .map(([d, n, px]) => `<span style="width:${px}px;height:${px}px">${renderDigit(d, n)}</span>`).join('');
+  renderPlan();
+  try { $('name').value = localStorage.getItem(NAME_KEY) || ''; } catch {}
+  $('name').addEventListener('keydown', e => { if (e.key === 'Enter') start(); });
   $('control-mode').checked = GROUP === 'control';
   $('control-mode').addEventListener('change', e => { GROUP = e.target.checked ? 'control' : 'test'; });
 

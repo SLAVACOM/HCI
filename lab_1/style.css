@@ -127,6 +127,13 @@ p { margin: 0 0 12px; }
 .c-ok { color: var(--ok); }
 
 /* Результаты */
+.done { display: grid; gap: 4px; padding: 16px 18px; margin-bottom: 32px; border-left: 4px solid var(--accent); background: #eef3fd; }
+.done b { font-size: 16pt; }
+.done .btn { justify-self: start; margin-top: 8px; }
+.done.ok { border-color: var(--ok); background: #e9f6ec; }
+.done.err { border-color: var(--fa); background: #fdeeee; }
+.done.wait b::after { content: " ⏳"; }
+.done.ok b::after { content: " ✓"; color: var(--ok); }
 .paste {
   width: 100%;
   font: 13px/1.4 ui-monospace, Consolas, "Courier New", monospace;

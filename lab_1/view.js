@@ -6,6 +6,7 @@ let current = null;
 function showParticipant(p) {
   current = p;
   $('meta').innerHTML = [
+    ...(p.name ? [['Участник', escapeHtml(p.name)]] : []),
     ['Группа', GROUP_TITLE[p.group] + (p.fake ? ' · сгенерированный' : '')],
     ['Дата', fmtDate(p.time)],
     ['Время показа', `${fmtSec(p.showMs)} с`],
@@ -71,4 +72,40 @@ $('btn-other').addEventListener('click', showPaste);
 $('btn-back').addEventListener('click', e => { e.preventDefault(); if (current) showParticipant(current); });
 window.addEventListener('hashchange', () => { if (!fromHash()) showPaste(); });
 
+function setDone(state, text) {
+  const el = $('done');
+  el.hidden = false;
+  el.className = 'done ' + state;
+  $('done-text').textContent = text;
+  $('btn-resend').hidden = state !== 'err';
+}
+
+// Сразу после прохождения теста результат автоматически уходит организатору в Telegram
+async function autoSend() {
+  if (!current) return;
+  const code = encodeHash(current);
+  let pending = null;
+  try { pending = sessionStorage.getItem(PENDING_KEY); } catch {}
+  if (pending !== code) return;
+  if (!tgEnabled()) {
+    setDone('info', 'Скопируйте результат кнопкой ниже и отправьте его тому, кто проводит тестирование.');
+    return;
+  }
+  if (sentCodes().includes(code)) {
+    setDone('ok', 'Результат уже отправлен организатору.');
+    return;
+  }
+  setDone('wait', 'Отправляем результат организатору…');
+  const ok = await tgSend(current, location.origin + location.pathname + '#' + code);
+  if (ok) {
+    markSent(code);
+    setDone('ok', 'Результат отправлен организатору. Можно закрыть страницу.');
+  } else {
+    setDone('err', 'Не удалось отправить результат автоматически. Проверьте интернет и нажмите «Отправить ещё раз» или скопируйте результат кнопкой ниже.');
+  }
+}
+
+$('btn-resend').addEventListener('click', autoSend);
+
 if (!fromHash()) showPaste();
+else autoSend();

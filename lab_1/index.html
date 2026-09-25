@@ -2,59 +2,111 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f4f6fa">
   <title>ЛР 1 — Размер и запоминание</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="test.css">
 </head>
 <body>
-  <header class="top">
-    <a href="../" class="back">← Все лабораторные</a>
-    <span id="progress"></span>
+  <header class="bar">
+    <div class="bar-in">
+      <a href="../" class="brand"><span class="brand-mark">7</span><span class="brand-text">Размер и запоминание</span></a>
+      <span id="progress" class="bar-progress"></span>
+    </div>
+    <div id="track" class="track" hidden></div>
   </header>
 
   <main id="app">
-    <section id="screen-start" class="screen card">
-      <h1>Запомни цифры</h1>
-      <p>На экране на <b id="t-label">3</b>&nbsp;с появятся несколько цифр (от <b id="min-label">3</b> до <b id="max-label">7</b>), разбросанных по полю.
-        Они будут показаны либо обычными арабскими символами, либо пиктограммами (точками, как на игральной кости), и либо <b>крупно</b>, либо <b>обычным размером</b>.</p>
-      <p>Когда цифры исчезнут, за <b id="a-label">20</b>&nbsp;с отметьте все, которые успели запомнить, и нажмите «Ответить» (можно раньше). Если время выйдет, ответ засчитается автоматически.</p>
-      <p>Тест состоит из <b id="blocks-label">6</b> вопросов по <b id="sets-label">6</b> наборов, всего <b id="rounds-label">36</b> раундов. Перед каждым вопросом будет короткая пауза.</p>
-      <div class="legend">
-        <div class="legend-item"><div class="legend-pic" id="legend-arabic"></div><span>цифра 5</span></div>
-        <div class="legend-item"><div class="legend-pic" id="legend-picto"></div><span>пиктограмма 5</span></div>
+    <!-- Старт -->
+    <section id="screen-start" class="screen">
+      <div class="hero">
+        <p class="eyebrow"><span class="dot"></span>Эксперимент · около <b id="dur-label">7</b> минут</p>
+        <h1>Запомните, что увидели</h1>
+        <p class="lead">На пару секунд появятся цифры или пиктограммы — то крупные, то обычного размера. Ваша задача — отметить, какие из них были на экране.</p>
       </div>
-      <button id="btn-start" class="btn primary">Начать</button>
-      <label class="check"><input type="checkbox" id="control-mode"> Режим контрольной группы (для авторов программы)</label>
+
+      <ol class="steps">
+        <li class="step">
+          <span class="step-n">1</span>
+          <div class="step-pic"><span class="mini fix">+</span></div>
+          <b>Смотрите в центр</b>
+          <span>Появится крестик, а за ним на <b id="t-label">3</b>&nbsp;с — от <b id="min-label">3</b> до <b id="max-label">7</b> объектов.</span>
+        </li>
+        <li class="step">
+          <span class="step-n">2</span>
+          <div class="step-pic" id="step-pic"></div>
+          <b>Запоминайте</b>
+          <span>Объекты разбросаны по экрану. Больше ничего показано не будет.</span>
+        </li>
+        <li class="step">
+          <span class="step-n">3</span>
+          <div class="step-pic step-keys"><i class="on">2</i><i>5</i><i class="on">8</i></div>
+          <b>Отметьте</b>
+          <span>За <b id="a-label">20</b>&nbsp;с выберите все, что запомнили, и нажмите «Ответить».</span>
+        </li>
+      </ol>
+
+      <div class="plan" id="plan"></div>
+
+      <div class="start-card">
+        <label class="field">
+          <span>Как вас зовут? <em>необязательно</em></span>
+          <input id="name" type="text" maxlength="40" autocomplete="name" placeholder="Имя или ник">
+        </label>
+        <button id="btn-start" class="btn big">Начать тест</button>
+        <p class="note">Не меняйте размер окна во время теста. На телефоне держите его вертикально.</p>
+        <label class="check"><input type="checkbox" id="control-mode"> Режим контрольной группы (для авторов программы)</label>
+      </div>
     </section>
 
-    <section id="screen-block" class="screen card" hidden>
-      <p class="kicker" id="block-kicker"></p>
-      <h2 id="block-title"></h2>
-      <p id="block-text"></p>
-      <div class="legend"><div class="legend-item"><div class="legend-pic" id="block-pic"></div><span id="block-pic-label"></span></div></div>
-      <button id="btn-block" class="btn primary">Продолжить</button>
+    <!-- Вступление к вопросу -->
+    <section id="screen-block" class="screen center" hidden>
+      <div class="panel block">
+        <p class="eyebrow" id="block-kicker"></p>
+        <h2 id="block-title"></h2>
+        <div class="preview" id="block-preview"></div>
+        <p class="preview-cap" id="block-cap"></p>
+        <p class="muted" id="block-text"></p>
+        <button id="btn-block" class="btn big">Начать вопрос</button>
+        <p class="kbd-hint">или нажмите <kbd>Enter</kbd></p>
+      </div>
     </section>
 
+    <!-- Показ -->
     <section id="screen-show" class="screen" hidden>
       <div id="stage" class="stage"><div class="fixation">+</div></div>
     </section>
 
-    <section id="screen-answer" class="screen card" hidden>
-      <h2 id="answer-title">Какие цифры были на экране?</h2>
-      <div class="timer" id="answer-timer">
-        <div class="timer-row"><span class="timer-label"></span><span class="timer-val"></span></div>
-        <div class="timer-bar"><i></i></div>
+    <!-- Ответ -->
+    <section id="screen-answer" class="screen center" hidden>
+      <div class="panel answer">
+        <div class="answer-head">
+          <h2 id="answer-title">Что было на экране?</h2>
+          <span class="chip" id="answer-chip"></span>
+        </div>
+        <div class="timer" id="answer-timer">
+          <div class="timer-row"><span class="timer-label"></span><span class="timer-val"></span></div>
+          <div class="timer-bar"><i></i></div>
+        </div>
+        <div id="options" class="options"></div>
+        <div id="feedback" class="feedback" hidden></div>
+        <div class="answer-foot">
+          <span class="muted" id="picked">Ничего не отмечено</span>
+          <button id="btn-submit" class="btn">Ответить</button>
+          <button id="btn-next" class="btn" hidden>Дальше</button>
+        </div>
+        <p class="kbd-hint" id="answer-hint">Клавиши <kbd>1</kbd>–<kbd>9</kbd> — отметить, <kbd>Enter</kbd> — ответить</p>
       </div>
-      <div id="options" class="options"></div>
-      <div id="feedback" class="feedback" hidden></div>
-      <button id="btn-submit" class="btn primary">Ответить</button>
-      <button id="btn-next" class="btn primary" hidden>Дальше</button>
     </section>
   </main>
 
   <script src="render.js"></script>
   <script src="plan.js"></script>
   <script src="results.js"></script>
+  <script src="telegram.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

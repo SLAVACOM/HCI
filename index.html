@@ -3,40 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f6fa">
   <title>Проектирование ЧМИ — лабораторные</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap">
   <style>
+    * { box-sizing: border-box; }
     html, body { overflow-x: clip; }
-    body { margin: 0; font-family: "Times New Roman", Times, serif; font-size: 14pt; line-height: 1.5; background: #fff; color: #1f2328; }
-    main { max-width: 760px; margin: 0 auto; padding: 40px 16px; }
-    h1 { font-size: 18pt; margin: 0 0 4px; }
-    p { color: #59636e; margin: 0 0 28px; }
-    ul { list-style: none; padding: 0; margin: 0; }
-    li + li { margin-top: 16px; }
-    li.sub { margin-left: 28px; margin-top: 8px; }
-    a { color: #3b6fd8; text-decoration: none; }
-    a:hover b { text-decoration: underline; }
-    a b { display: block; }
-    a span { color: #59636e; font-size: 12pt; }
-    @media (max-width: 560px) {
-      body { font-size: 12pt; line-height: 1.45; }
-      h1 { font-size: 16pt; }
-      main { padding: 28px 16px; }
-      a span { font-size: 10pt; }
-    }
+    body { margin: 0; font-family: "Golos Text", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; font-size: 17px; line-height: 1.5; background: #f4f6fa; color: #1f2328; -webkit-font-smoothing: antialiased; }
+    main { max-width: 820px; margin: 0 auto; padding: 56px 20px; }
+    .eyebrow { color: #5d6673; font-size: 14px; font-weight: 500; margin: 0 0 10px; }
+    h1 { font-size: clamp(28px, 5vw, 40px); letter-spacing: -0.02em; line-height: 1.15; margin: 0 0 32px; }
+    .lab { display: block; padding: 28px; background: #fff; border-radius: 20px; box-shadow: 0 1px 2px rgba(20,30,50,.05), 0 8px 24px rgba(20,30,50,.06); color: inherit; text-decoration: none; transition: transform .15s, box-shadow .15s; }
+    .lab:hover { transform: translateY(-2px); box-shadow: 0 2px 4px rgba(20,30,50,.06), 0 14px 32px rgba(20,30,50,.09); }
+    .lab small { color: #5d6673; font-size: 14px; font-weight: 500; }
+    .lab h2 { font-size: 24px; letter-spacing: -0.01em; margin: 4px 0 8px; }
+    .lab p { color: #5d6673; margin: 0 0 18px; }
+    .go { display: inline-flex; padding: 12px 22px; border-radius: 12px; background: #3563d9; color: #fff; font-weight: 600; }
+    .links { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 16px; }
+    .links a { display: grid; gap: 2px; padding: 16px 18px; background: #fff; border-radius: 14px; color: inherit; text-decoration: none; border: 1px solid #e1e5ec; }
+    .links a:hover { border-color: #3563d9; }
+    .links b { font-weight: 600; }
+    .links span { color: #5d6673; font-size: 14px; }
+    @media (max-width: 560px) { main { padding: 32px 16px; } .lab { padding: 22px 18px; } }
   </style>
 </head>
 <body>
   <main>
-    <h1>Проектирование человеко-машинного интерфейса</h1>
-    <p>Лабораторные работы</p>
-    <ul>
-      <li><a href="lab_1/"><b>ЛР 1. Размер и запоминание цифр</b><span>Крупные (×3) и обычные арабские цифры и пиктограммы: Тест 1 и Тест 2</span></a></li>
-      <li class="sub"><a href="lab_1/?test=1"><b>ЛР 1 · Только Тест 1</b><span>Гипотеза 1: крупные и обычные арабские цифры (12 раундов)</span></a></li>
-      <li class="sub"><a href="lab_1/?test=2"><b>ЛР 1 · Только Тест 2</b><span>Гипотеза 2: размер × нотация (24 раунда)</span></a></li>
-      <li class="sub"><a href="lab_1/view.html"><b>ЛР 1 · Результат участника</b><span>Просмотр одного результата</span></a></li>
-      <li class="sub"><a href="lab_1/summary.html"><b>ЛР 1 · Сводная статистика</b><span>Проверка гипотез по всем участникам</span></a></li>
-      <li class="sub"><a href="lab_1/generate.html"><b>ЛР 1 · Генератор результатов</b><span>Случайные правдоподобные результаты для проверки страниц</span></a></li>
-    </ul>
+    <p class="eyebrow">Проектирование человеко-машинного интерфейса</p>
+    <h1>Лабораторные работы</h1>
+
+    <a class="lab" href="lab_1/">
+      <small>ЛР 1</small>
+      <h2>Размер и запоминание цифр</h2>
+      <p>Запоминаются ли крупные (×3) арабские цифры лучше обычных и сильнее ли размер влияет на пиктограммы. Тест 1 и Тест 2, около 7 минут.</p>
+      <span class="go">Пройти тест →</span>
+    </a>
+
+    <div class="links">
+      <a href="lab_1/?test=1"><b>Только Тест 1</b><span>Гипотеза 1 · 12 раундов</span></a>
+      <a href="lab_1/?test=2"><b>Только Тест 2</b><span>Гипотеза 2 · 24 раунда</span></a>
+      <a href="lab_1/view.html"><b>Результат участника</b><span>Просмотр по ссылке или коду</span></a>
+      <a href="lab_1/summary.html"><b>Сводная статистика</b><span>Проверка гипотез по всем</span></a>
+      <a href="lab_1/generate.html"><b>Генератор результатов</b><span>Тестовые данные для проверки</span></a>
+    </div>
   </main>
 </body>
 </html>

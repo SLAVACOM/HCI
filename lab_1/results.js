@@ -49,6 +49,8 @@ function scoreTrial(t) {
   return { n: t.items.length, hit, miss: t.items.length - hit, fa: t.sel.length - hit };
 }
 
+const escapeHtml = s => String(s || '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
 /* ---------- Кодирование результата в ссылку ---------- */
 
 function encodeHash(p) {
@@ -61,14 +63,30 @@ function encodeHash(p) {
     t.px || '',
   ].join('-')).join('.');
   const g = p.group === 'control' ? 'c' : 't';
-  return CODE_PREFIX + [p.fake ? g.toUpperCase() : g, p.time.toString(36), p.showMs, dev, rounds].join('_');
+  const parts = [p.fake ? g.toUpperCase() : g, p.time.toString(36), p.showMs, dev, rounds];
+  if (p.name) parts.push('n' + nameToHex(p.name));
+  return CODE_PREFIX + parts.join('_');
+}
+
+// Имя участника хранится в коде как hex UTF-8, чтобы код оставался из «безопасных» символов
+function nameToHex(name) {
+  return [...new TextEncoder().encode(name)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function hexToName(hex) {
+  const bytes = (hex.match(/[0-9a-f]{2}/g) || []).map(h => parseInt(h, 16));
+  try { return new TextDecoder().decode(new Uint8Array(bytes)); } catch { return ''; }
+}
+
+function cleanName(s) {
+  return String(s || '').replace(/\s+/g, ' ').trim().slice(0, 40);
 }
 
 function decodeHash(h) {
   if (!h.startsWith(CODE_PREFIX)) throw new Error('Неверный код результата');
   const parts = h.slice(CODE_PREFIX.length).split('_');
   if (parts.length < 5 || !parts[4]) throw new Error('Неверный код результата');
-  const [g, time, showMs, dev, rounds] = parts;
+  const [g, time, showMs, dev, rounds, extra = ''] = parts;
   const dm = dev.match(/^([md])(\d+)x(\d+)$/);
   const trials = rounds.split('.').filter(Boolean).map(r => {
     const [head, sel = '', rt = '', to = '0', px = ''] = r.split('-');
@@ -92,6 +110,7 @@ function decodeHash(h) {
     time: parseInt(time, 36),
     showMs: parseInt(showMs, 10) || 3000,
     dev: dm ? { touch: dm[1] === 'm', w: +dm[2], h: +dm[3] } : null,
+    name: extra[0] === 'n' ? cleanName(hexToName(extra.slice(1))) : '',
     trials,
   };
 }
@@ -476,6 +495,7 @@ function formatText(p) {
   const st = computeStats([p]);
   const lines = [
     TITLE_LINE,
+    ...(p.name ? [`Участник: ${p.name}`] : []),
     `Группа: ${GROUP_WORD[p.group]}`,
     `Дата: ${fmtDate(p.time)}`,
     `Устройство: ${fmtDevice(p.dev)}`,
@@ -489,12 +509,12 @@ function formatText(p) {
   return lines.join('\n');
 }
 
-const PEOPLE_HEAD = ['№', 'Группа', 'Дата', 'Т1: крупн.', 'Т1: обычн.', 'Δ1', 'Т2: цифры кр.', 'Т2: цифры мелк.', 'Т2: пикт. кр.', 'Т2: пикт. мелк.', 'Δцифры', 'Δпикт.', 'Δпикт. − Δцифры', 'Устр.'];
+const PEOPLE_HEAD = ['№', 'Участник', 'Группа', 'Дата', 'Т1: крупн.', 'Т1: обычн.', 'Δ1', 'Т2: цифры кр.', 'Т2: цифры мелк.', 'Т2: пикт. кр.', 'Т2: пикт. мелк.', 'Δцифры', 'Δпикт.', 'Δпикт. − Δцифры', 'Устр.'];
 
 function participantRow(p, i, r) {
   return {
     hash: encodeHash(p),
-    cells: [i + 1, GROUP_WORD[p.group] + (p.fake ? '*' : ''), fmtDate(p.time),
+    cells: [i + 1, escapeHtml(p.name) || '—', GROUP_WORD[p.group] + (p.fake ? '*' : ''), fmtDate(p.time),
       fmtPct(r.t1L), fmtPct(r.t1S), fmtPP(r.d1),
       fmtPct(r.t2AL), fmtPct(r.t2AS), fmtPct(r.t2PL), fmtPct(r.t2PS),
       fmtPP(r.dA), fmtPP(r.dP), fmtPP(r.dd),
