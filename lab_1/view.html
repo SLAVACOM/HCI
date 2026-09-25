@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ЛР 1 — Результат участника</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="wide">
+  <header class="top">
+    <a href="../" class="back">← Все лабораторные</a>
+    <a href="summary.html" class="back">Сводка →</a>
+  </header>
+
+  <main>
+    <section id="paste" class="card" hidden>
+      <h1>Результат участника</h1>
+      <p>Вставьте текст результата, который прислал участник, или ссылку на эту страницу и нажмите «Показать».</p>
+      <textarea id="input" class="paste" rows="8" placeholder="ЛР1 «Размер и запоминание» · результат участника&#10;…&#10;Код результата: h1_…"></textarea>
+      <div class="actions">
+        <button id="btn-show" class="btn primary">Показать</button>
+        <a id="btn-back" class="btn" href="#" hidden>Вернуться к результату</a>
+      </div>
+      <p class="hint" id="paste-msg"></p>
+    </section>
+
+    <section id="view" hidden>
+      <div class="card head-card">
+        <h1>Результат</h1>
+        <div class="meta" id="meta"></div>
+        <div class="actions">
+          <button id="btn-copy" class="btn primary">Скопировать результат</button>
+          <button id="btn-link" class="btn primary">Скопировать ссылку</button>
+          <a id="btn-again" class="btn" href="./">Пройти тест ещё раз</a>
+          <button id="btn-other" class="btn">Открыть другой результат</button>
+        </div>
+        <p class="hint" id="copy-msg">Скопируйте результат текстом или ссылкой и отправьте тому, кто проводит тестирование.</p>
+      </div>
+      <div id="report"></div>
+    </section>
+  </main>
+
+  <script src="render.js"></script>
+  <script src="results.js"></script>
+  <script src="view.js"></script>
+</body>
+</html>

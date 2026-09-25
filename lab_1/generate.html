@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ЛР 1 — Генератор результатов</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <a href="../" class="back">← Все лабораторные</a>
+    <a href="summary.html" class="back">Сводка →</a>
+  </header>
+
+  <main>
+    <section class="card">
+      <h1>Генератор результатов</h1>
+      <p>Создаёт правдоподобные результаты прохождения теста: те же 36 раундов, что в настоящем тесте, со случайными ответами и временем. Нужен, чтобы проверить, как выглядят страница результата и сводка, и как работает проверка гипотез. В настоящую статистику такие результаты не включайте — они помечены звёздочкой.</p>
+
+      <div class="form">
+        <label>Сколько результатов
+          <select id="count">
+            <option value="1">1</option>
+            <option value="5">5</option>
+            <option value="10" selected>10</option>
+            <option value="20">20</option>
+          </select>
+        </label>
+        <label>Группа
+          <select id="group">
+            <option value="test">тестовая</option>
+            <option value="control">контрольная</option>
+            <option value="mixed">вперемешку</option>
+          </select>
+        </label>
+        <label>Устройство
+          <select id="device">
+            <option value="mixed">вперемешку</option>
+            <option value="pc">компьютер</option>
+            <option value="phone">телефон</option>
+          </select>
+        </label>
+        <label>Как влияет размер
+          <select id="effect">
+            <option value="both">обе гипотезы верны</option>
+            <option value="h1">крупные лучше, но одинаково для цифр и пиктограмм</option>
+            <option value="none">размер не влияет</option>
+            <option value="random">у каждого по-своему (случайно)</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="actions">
+        <button id="btn-gen" class="btn primary">Сгенерировать</button>
+      </div>
+    </section>
+
+    <section id="out" class="card" hidden>
+      <h2>Готовые результаты</h2>
+      <ol id="list" class="gen-list"></ol>
+      <div class="actions">
+        <button id="btn-summary" class="btn primary">Посчитать в сводке</button>
+        <button id="btn-copy" class="btn">Скопировать все ссылки</button>
+      </div>
+      <p class="hint" id="msg">«Посчитать в сводке» откроет сводку сразу с этими результатами.</p>
+    </section>
+  </main>
+
+  <script src="render.js"></script>
+  <script src="plan.js"></script>
+  <script src="results.js"></script>
+  <script src="generate.js"></script>
+</body>
+</html>

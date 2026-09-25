@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ЛР 1 — Размер и запоминание</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <a href="../" class="back">← Все лабораторные</a>
+    <span id="progress"></span>
+  </header>
+
+  <main id="app">
+    <section id="screen-start" class="screen card">
+      <h1>Запомни цифры</h1>
+      <p>На экране на <b id="t-label">3</b>&nbsp;с появятся несколько цифр (от <b id="min-label">3</b> до <b id="max-label">7</b>), разбросанных по полю.
+        Они будут показаны либо обычными арабскими символами, либо пиктограммами (точками, как на игральной кости), и либо <b>крупно</b>, либо <b>обычным размером</b>.</p>
+      <p>Когда цифры исчезнут, за <b id="a-label">20</b>&nbsp;с отметьте все, которые успели запомнить, и нажмите «Ответить» (можно раньше). Если время выйдет, ответ засчитается автоматически.</p>
+      <p>Тест состоит из <b id="blocks-label">6</b> вопросов по <b id="sets-label">6</b> наборов, всего <b id="rounds-label">36</b> раундов. Перед каждым вопросом будет короткая пауза.</p>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-pic" id="legend-arabic"></div><span>цифра 5</span></div>
+        <div class="legend-item"><div class="legend-pic" id="legend-picto"></div><span>пиктограмма 5</span></div>
+      </div>
+      <button id="btn-start" class="btn primary">Начать</button>
+      <label class="check"><input type="checkbox" id="control-mode"> Режим контрольной группы (для авторов программы)</label>
+    </section>
+
+    <section id="screen-block" class="screen card" hidden>
+      <p class="kicker" id="block-kicker"></p>
+      <h2 id="block-title"></h2>
+      <p id="block-text"></p>
+      <div class="legend"><div class="legend-item"><div class="legend-pic" id="block-pic"></div><span id="block-pic-label"></span></div></div>
+      <button id="btn-block" class="btn primary">Продолжить</button>
+    </section>
+
+    <section id="screen-show" class="screen" hidden>
+      <div id="stage" class="stage"><div class="fixation">+</div></div>
+    </section>
+
+    <section id="screen-answer" class="screen card" hidden>
+      <h2 id="answer-title">Какие цифры были на экране?</h2>
+      <div class="timer" id="answer-timer">
+        <div class="timer-row"><span class="timer-label"></span><span class="timer-val"></span></div>
+        <div class="timer-bar"><i></i></div>
+      </div>
+      <div id="options" class="options"></div>
+      <div id="feedback" class="feedback" hidden></div>
+      <button id="btn-submit" class="btn primary">Ответить</button>
+      <button id="btn-next" class="btn primary" hidden>Дальше</button>
+    </section>
+  </main>
+
+  <script src="render.js"></script>
+  <script src="plan.js"></script>
+  <script src="results.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

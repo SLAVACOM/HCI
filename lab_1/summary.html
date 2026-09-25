@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ЛР 1 — Сводная статистика</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="wide">
+  <header class="top">
+    <a href="../" class="back">← Все лабораторные</a>
+    <a href="view.html" class="back">Результат участника →</a>
+  </header>
+
+  <main>
+    <section class="card">
+      <h1>Сводная статистика</h1>
+      <p>Вставьте подряд результаты участников: ссылки или тексты, можно прямо переписку из мессенджера целиком. Программа найдёт в тексте все коды результатов, повторы пропустит.</p>
+      <textarea id="input" class="paste" rows="10" placeholder="Вставьте сюда результаты…"></textarea>
+      <div class="actions">
+        <button id="btn-calc" class="btn primary">Посчитать</button>
+        <button id="btn-clear" class="btn">Очистить</button>
+      </div>
+      <p class="hint" id="status"></p>
+    </section>
+
+    <section id="out" hidden>
+      <div class="card head-card">
+        <div class="seg" id="filter"></div>
+        <div class="actions">
+          <button id="btn-copy" class="btn">Скопировать сводку текстом</button>
+        </div>
+        <p class="hint" id="copy-msg">Текст сводки содержит проверку гипотез и таблицы по всем участникам и по каждой группе. Его удобно вставить в отчёт.</p>
+      </div>
+      <div id="report"></div>
+      <section class="card">
+        <h2>Участники</h2>
+        <div class="fig">
+          <p class="fig-caption" id="people-caption">Таблица — Результаты каждого участника</p>
+          <div class="table-wrap"><table class="tbl people" id="people"></table></div>
+          <p class="fig-note">Проценты — доля правильно отмеченных объектов. Δ1 — разница «крупные − обычные» в Тесте 1; Δцифры и Δпикт. — то же в Тесте 2; последняя колонка — главный показатель гипотезы 2. Звёздочка — сгенерированный результат. Номер открывает подробный результат.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="render.js"></script>
+  <script src="results.js"></script>
+  <script src="summary.js"></script>
+</body>
+</html>
